@@ -1,0 +1,391 @@
+{
+  "login": {
+    "title": "Login",
+    "subtitle": "Sign in with your credentials",
+    "placeholder": {
+      "username": "User (Login)",
+      "password": "Password"
+    },
+    "forgot": "Forgot username or password?",
+    "signin": "Sign in",
+    "language": "Language",
+    "lang_names": {
+      "pt": "Português",
+      "en": "English"
+    }
+  },
+
+  "dashboard": {
+    "title": "Loads and Unloads",
+    "timeframe": "Timeframe:",
+    "platform": "Platform:",
+    "hourly": "Hourly",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "all": "All",
+    "platform_label_prefix": "Platform ",
+    "loaded": "Loaded",
+    "unloaded": "Unloaded",
+    "last_24": "Last 24hrs",
+    "last_7": "Last 7 days",
+    "last_8_weeks": "Last 8 weeks",
+    "last_6_months": "Last 6 months",
+    "balance": "Balance:",
+    "cylinders": "Cylinders",
+    "filter_applied": "Filter applied to dashboard",
+    "all_platforms": "All Platforms",
+    "refreshData": "Refresh Data",
+    "refreshing": "Refreshing..."
+    ,
+    "custom_range": "Custom range",
+    "custom_range_modal_title": "Custom date & time range",
+    "start": "Start",
+    "end": "End",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "invalid_range": "Invalid range: start must be before end."
+  },
+
+  "platform": {
+    "configure_zones": "Configure Zones",
+    "click_to_open": "Click to open the zone editor",
+    "open": "Open",
+    "clear_all": "Clear All",
+    "close": "Close",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "save_and_start": "Save and Start Counting",
+    "confirm_clear_zone": "Clear zone {{z}}?",
+    "signal_lost": "Signal Lost",
+    "loaded": "Loaded",
+    "unloaded": "Unloaded",
+    "no_zones": "No Zones",
+    "create_zones": "Create zones to see entries/exits",
+    "configure_button": "Configure Zones",
+    "zone": "Zone {{z}}"
+  ,
+    "counting_zones_configuration": "Counting Zones Configuration",
+    "live_stream": "Live stream",
+    "connecting": "Connecting...",
+    "instructions_title": "Instructions",
+    "instructions_select_zone": "Select a zone below",
+    "instructions_click_points": "Click 2 points on the image to draw the line",
+    "instructions_direction_entry": "Direction: P1 → P2 (Right) = ENTRY",
+    "instructions_direction_exit": "Direction: P1 → P2 (Left) = EXIT"
+  },
+
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "reports": "Reports",
+    "cameras": "Cameras",
+    "users": "Users",
+    "audit": "Audit",
+    "settings": "Settings",
+    "api_docs": "API Docs",
+    "light_mode": "Light Mode",
+    "dark_mode": "Dark Mode",
+    "need_help": "Need help?",
+    "whatsapp": "WhatsApp",
+    "logout": "Logout"
+  },
+
+  "reports": {
+    "title": "Reports and Queries",
+    "subtitle": "Track movement history and health of external integrations.",
+    "tabs": {
+      "operations": "Operations",
+      "integrations": "Integration Logs"
+    },
+    "filters": {
+      "title": "Movement Filters",
+      "platform": "Platform",
+      "zone": "Zone",
+      "operationType": "Operation Type",
+      "all": "All",
+      "embark": "Embark",
+      "disembark": "Disembark",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "includeTime": "Include time",
+      "reset": "Reset filters"
+    },
+    "results": {
+      "count": "{{count}} records found"
+    },
+    "actions": {
+      "exporting": "Exporting...",
+      "exportPDF": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCSV": "Export CSV"
+    },
+    "loading": {
+      "data": "Loading data...",
+      "logs": "Loading logs..."
+    },
+    "empty": {
+      "noRecords": "No records found",
+      "tryFilters": "Try adjusting the filters above."
+    },
+    "pagination": {
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "results": "results",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "integrations": {
+      "title": "External Integrations Health",
+      "refresh": "Refresh Now",
+      "empty": "No integration logs found"
+    },
+    "status": {
+      "success": "Success",
+      "failure": "Failure"
+    },
+    "table": {
+      "dateTime": "Date / Time",
+      "platform": "Platform",
+      "operation": "Operation",
+      "zones": "Zones",
+      "qtyCylinders": "Qty. Cylinders",
+      "user": "User"
+    }
+    ,
+    "pdf": {
+      "kpis_title": "KPIs - Key Performance Indicators",
+      "summary_title": "Summary Tables",
+      "platform": "Platform",
+      "total": "Total",
+      "percent": "% of Total",
+      "operation": "Operation",
+      "day_of_highest": "Day of Highest Movement",
+      "total_movements": "Total Movements",
+      "top_platform": "Top Platform",
+      "top_platform_qty": "Top Platform Qty",
+      "loaded_label": "Loaded",
+      "unloaded_label": "Unloaded",
+      "no_loaded_unloaded_legend": "No loaded/unloaded",
+      "generated_label": "Generated:"
+    }
+  },
+
+  "users": {
+    "title": "Users",
+    "subtitle": "Manage system access",
+    "actions": {
+      "new": "New User"
+    },
+    "search": {
+      "placeholder": "Search users..."
+    },
+    "modal": {
+      "edit": "Edit User",
+      "new": "New User",
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "create": "Create User"
+    },
+    "form": {
+      "username": "User (Login)",
+      "email": "Email",
+      "password": "Password",
+      "role": "Access Role",
+      "page_permissions": "Page Permissions",
+      "manage_viewers": "Can manage viewers",
+      "placeholder": {
+        "username": "Enter username",
+        "email": "Enter user email",
+        "password": "Enter password"
+      }
+    },
+    "roles": {
+      "viewer": "Viewer",
+      "admin": "Administrator"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "table": {
+      "user": "User",
+      "login": "User (Login)",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "messages": {
+      "onlyAdmins": "Only administrators can manage users.",
+      "saveError": "Could not save the user. Check if you are logged in as admin.",
+      "cannotDeleteAdmin": "The default admin/admin user cannot be deleted.",
+      "confirmDelete": "Are you sure you want to delete this user?",
+      "deleteError": "Could not delete the user. Check if you are logged in as admin.",
+      "statusError": "Could not update the user status. Check if you are logged in as admin."
+    }
+    ,
+    "pages": {
+      "dashboard": "Dashboard",
+      "reports": "Reports",
+      "api_docs": "API Docs",
+      "audit": "Audit",
+      "cameras": "Cameras",
+      "registrations": "Registrations",
+      "users": "Users"
+    }
+  },
+
+  "cameras": {
+    "title": "Cameras",
+    "subtitle": "Manage the cameras connected to the system",
+    "actions": {
+      "new": "New Camera",
+      "test": "Test",
+      "testing": "Testing...",
+      "testTitle": "Test camera connection",
+      "saveCamera": "Save Camera"
+    },
+    "search": {
+      "placeholder": "Search cameras..."
+    },
+    "modal": {
+      "edit": "Edit Camera",
+      "new": "New Camera",
+      "cancel": "Cancel",
+      "save": "Save Changes",
+      "saveCamera": "Save Camera"
+    },
+    "form": {
+      "name": "Camera Name",
+      "ip": "IP / URL",
+      "protocol": "Protocol",
+      "platform": "Platform",
+      "location": "Location"
+    },
+    "table": {
+      "camera": "Camera",
+      "ip": "IP / URL",
+      "location": "Location",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "messages": {
+      "fillIp": "Please fill the IP / URL field before saving the platform.",
+      "duplicateWarning": "⚠️ WARNING: {{msg}}\n\nThis may cause system slowness. Consider using different URLs for each platform.",
+      "saveError": "Error saving camera: {{msg}}",
+      "confirmDelete": "Are you sure you want to delete this camera?",
+      "testSuccess": "Connection to platform {{id}} established successfully!",
+      "testFailed": "Connection to platform {{id}} failed: {{err}}",
+      "testError": "Error attempting to connect to platform {{id}}. Ensure the backend server is running."
+    }
+  },
+
+  "cadastros": {
+    "title": "Registrations",
+    "tabs": {
+      "cameras": "Cameras",
+      "users": "Users",
+      "settings": "Support",
+      "audit": "Audit"
+    },
+    "settings": {
+      "supportTitle": "Support Contacts",
+      "supportDesc": "Configure the numbers shown in the sidebar support button.",
+      "whatsapp": "WhatsApp (numbers only)",
+      "whatsappHint": "International format: 55 + area code + number",
+      "phone": "Phone (Display)",
+      "brandTitle": "Brand Settings",
+      "brandDesc": "Customize the platform name, subtitle and logo.",
+      "brandName": "Brand Name",
+      "subtitle": "Subtitle",
+      "brandLogo": "Brand Logo",
+      "noLogo": "No Logo",
+      "supportedFormats": "Supported formats: PNG, JPG, SVG.",
+      "remove": "Remove",
+      "saveChanges": "Save Changes",
+      "saved": "Settings saved successfully!"
+    }
+  },
+
+  "audit": {
+    "title": "Audit Logs",
+    "subtitle": "View system events and changes",
+    "search": {
+      "placeholder": "Search logs..."
+    },
+    "filter": {
+      "allCategories": "All Categories"
+    },
+    "categories": {
+      "auth": "Authentication",
+      "camera": "Camera",
+      "user": "User",
+      "settings": "Settings",
+      "other": "Other"
+    },
+    "table": {
+      "date": "Date",
+      "user": "User",
+      "action": "Action",
+      "category": "Category",
+      "details": "Details"
+    },
+    "empty": {
+      "noLogs": "No logs found"
+    }
+  },
+
+  "apiDocs": {
+    "title": "API Documentation & Management",
+    "subtitle": "Technical guide for implementing and monitoring external integrations.",
+    "openSwagger": "Open Swagger UI",
+    "rest": {
+      "title": "REST Consumption (Axios)",
+      "description": "The frontend uses interceptors to manage tokens and global authentication. The backend should validate headers on all protected routes.",
+      "securityTitle": "Security Tip: Secret Management",
+      "securityDesc": "Never hardcode real keys. Use the .env file (based on .env.example) to manage production credentials securely."
+    },
+    "endpoints": {
+      "title": "Endpoints Reference",
+      "analytics": "Analytics",
+      "streaming": "Streaming",
+      "configuration": "Configuration",
+      "todaySummaryDesc": "Returns the consolidated summary for all platforms and the individual status.",
+      "videoFeedDesc": "Video stream (MJPEG) for the specified platform.",
+      "setZonesDesc": "Sets the coordinates for counting zones A, B, C and D."
+    },
+    "socket": {
+      "title": "Real-time (Socket.io)",
+      "description": "The server should emit global updates for all connected clients using the dashboard_update event."
+    },
+    "deploy": {
+      "title": "Production & Deploy",
+      "description": "The frontend uses dynamic URLs to ease handoff between environments.",
+      "devNote": "During npm run dev, the system points to localhost:5000.",
+      "buildNote": "After npm run build, the system automatically detects the server address via window.location.origin.",
+      "backendTipLabel": "Backend tip:",
+      "backendTip": "Simply serve the dist folder as static files. The frontend will locate endpoints on the same host."
+    },
+    "logs": {
+      "title": "Integration Logs (ERP/WMS)",
+      "table": {
+        "status": "Status",
+        "system": "System",
+        "dateTime": "Date / Time",
+        "returnMessage": "Return Message"
+      }
+    },
+    "status": {
+      "success": "Success",
+      "unknown": "{label}"
+    },
+    "keys": {
+      "title": "Key Management",
+      "noKeys": "No keys found."
+    }
+  }
+}

@@ -1,0 +1,925 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cylinder Tracking Dashboard API",
+    "version": "1.2.0",
+    "description": "Full API for monitoring cylinders, managing cameras, zones and generating reports.",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Flask Backend Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "viewer", "operator"]
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Camera": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "zones": {
+            "type": "object"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "user": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "IntegrationLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"]
+          },
+          "system": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "SessionAuth": []
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login (Form-based)",
+        "description": "Authenticates a user with credentials via FormData",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirect to dashboard after successful login"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login (JSON API)",
+        "description": "Authenticates a user with credentials via JSON",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Logout",
+        "security": [{"SessionAuth": []}],
+        "responses": {
+          "302": {
+            "description": "Redirect para login após logout"
+          }
+        }
+      }
+    },
+    "/api/v1/cameras": {
+      "get": {
+        "tags": ["Cameras"],
+        "summary": "List all cameras",
+        "security": [{"SessionAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of configured cameras",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "platform": {"type": "string"},
+                      "name": {"type": "string"},
+                      "url": {"type": "string"},
+                      "status": {"type": "string"},
+                      "zones": {"type": "object"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/add_camera": {
+      "post": {
+        "tags": ["Cameras"],
+        "summary": "Add new camera",
+        "security": [{"SessionAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {"type": "string"},
+                  "name": {"type": "string"},
+                  "url": {"type": "string"}
+                },
+                "required": ["platform", "name", "url"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Camera added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "warning": {"type": "string", "description": "Aviso se URL já está em uso"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/update_camera": {
+      "post": {
+        "tags": ["Cameras"],
+        "summary": "Update existing camera",
+        "security": [{"SessionAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {"type": "string"},
+                  "name": {"type": "string"},
+                  "url": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Camera updated successfully"
+          }
+        }
+      }
+    },
+    "/api/v1/delete_camera": {
+      "post": {
+        "tags": ["Cameras"],
+        "summary": "Delete camera",
+        "security": [{"SessionAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {"type": "string"}
+                },
+                "required": ["platform"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Camera deleted successfully"
+          }
+        }
+      }
+    },
+    "/api/v1/test_connection_plat/{platform}": {
+      "get": {
+        "tags": ["Cameras"],
+        "summary": "Test camera connection by platform",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection tested successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "error": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test_connection": {
+      "get": {
+        "tags": ["Cameras"],
+        "summary": "Test generic RTSP connection",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection test result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean"},
+                    "error": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_zones/{platform}": {
+      "get": {
+        "tags": ["Zones"],
+        "summary": "Get configured zones for a camera",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Camera zones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "p1": {"type": "array", "items": {"type": "number"}},
+                      "p2": {"type": "array", "items": {"type": "number"}}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/set_zones/{platform}": {
+      "post": {
+        "tags": ["Zones"],
+        "summary": "Configure zones for a camera",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Object with zones in the format {zoneName: {p1: [x,y], p2: [x,y]}}"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Zones updated successfully"
+          }
+        }
+      }
+    },
+    "/video_feed/{platform}": {
+      "get": {
+        "tags": ["Video"],
+        "summary": "MJPEG video stream",
+        "description": "Returns a real-time MJPEG stream from the camera. Use in an <img> tag or the VideoStream component",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MJPEG stream",
+            "content": {
+              "multipart/x-mixed-replace": {}
+            }
+          }
+        }
+      }
+    },
+    "/snapshot/{platform}": {
+      "get": {
+        "tags": ["Video"],
+        "summary": "Single snapshot from camera",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JPEG image",
+            "content": {
+              "image/jpeg": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/platforms": {
+      "get": {
+        "tags": ["Platforms"],
+        "summary": "List platforms",
+        "security": [{"SessionAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of configured platforms",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/counts": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Get cylinder counts",
+        "security": [{"SessionAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of counts by platform and zone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {"type": "string"},
+                      "platform": {"type": "string"},
+                      "zone": {"type": "string"},
+                      "direction": {"type": "string"},
+                      "count": {"type": "integer"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/today-summary": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Today's summary",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string"},
+            "description": "Filtrar por plataforma específica"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resumo consolidado de todas as plataformas ou plataforma específica",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "platforms": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "loaded": {"type": "integer"},
+                          "unloaded": {"type": "integer"},
+                          "status": {"type": "string"}
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "object",
+                      "properties": {
+                        "loaded": {"type": "integer"},
+                        "unloaded": {"type": "integer"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/{platform_period}": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Get chart data",
+        "description": "Returns chart data for a given period. Examples: platform1_week, platform2_month, all_year",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform_period",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"},
+            "description": "Formato: {platform}_{period} onde platform pode ser 'all' ou nome da plataforma, e period pode ser 'week', 'month', 'year'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chart data for the requested period",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "labels": {
+                      "type": "array",
+                      "items": {"type": "string"}
+                    },
+                    "loaded": {
+                      "type": "array",
+                      "items": {"type": "integer"}
+                    },
+                    "unloaded": {
+                      "type": "array",
+                      "items": {"type": "integer"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_report_data": {
+      "get": {
+        "tags": ["Reports"],
+        "summary": "Get report data with filters",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Start date (YYYY-MM-DD)"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "End date (YYYY-MM-DD)"
+          },
+          {
+            "name": "plat",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Specific platform or 'all'"
+          },
+          {
+            "name": "dir",
+            "in": "query",
+            "schema": {"type": "string"},
+            "description": "Direction: 'loaded', 'unloaded' or 'all'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of filtered counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {"type": "string"},
+                      "platform": {"type": "string"},
+                      "zone": {"type": "string"},
+                      "direction": {"type": "string"},
+                      "count": {"type": "integer"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List users (admin only)",
+        "security": [{"SessionAuth": []}],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied - admin only"
+          }
+        }
+      }
+    },
+    "/api/v1/add_user": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Add user (admin only)",
+        "security": [{"SessionAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {"type": "string"},
+                  "password": {"type": "string"},
+                  "role": {"type": "string", "enum": ["admin", "viewer"]},
+                  "active": {"type": "boolean"}
+                },
+                "required": ["username", "password", "role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created successfully"
+          },
+          "403": {
+            "description": "Access denied - admin only"
+          }
+        }
+      }
+    },
+    "/api/v1/update_user": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Update user (admin only)",
+        "security": [{"SessionAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "integer"},
+                  "password": {"type": "string"},
+                  "role": {"type": "string", "enum": ["admin", "viewer"]},
+                  "active": {"type": "boolean"}
+                },
+                "required": ["id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          },
+          "403": {
+            "description": "Access denied - admin only"
+          }
+        }
+      }
+    },
+    "/api/v1/delete_user": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Delete user (admin only)",
+        "security": [{"SessionAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "integer"}
+                },
+                "required": ["id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User deleted successfully"
+          },
+          "403": {
+            "description": "Access denied - admin only"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Authentication endpoints (login, logout)"
+    },
+    {
+      "name": "Cameras",
+      "description": "RTSP camera management"
+    },
+    {
+      "name": "Zones",
+      "description": "Detection zone configuration"
+    },
+    {
+      "name": "Video",
+      "description": "Video streams and snapshots"
+    },
+    {
+      "name": "Platforms",
+      "description": "Platform management"
+    },
+    {
+      "name": "Analytics",
+      "description": "Analytical data and summaries"
+    },
+    {
+      "name": "Reports",
+      "description": "Reports and history"
+    },
+    {
+      "name": "Users",
+      "description": "User management (admin only)"
+    }
+  ],
+  "x-websocket": {
+    "description": "This API also uses Socket.IO for real-time communication",
+    "url": "ws://localhost:5000/socket.io/",
+    "events": {
+      "connect": {
+        "description": "Event fired when the client connects successfully"
+      },
+      "disconnect": {
+        "description": "Event fired when the client disconnects"
+      },
+      "dashboard_update": {
+        "description": "Event emitted by the server with real-time dashboard updates",
+        "direction": "server-to-client",
+        "payload": {
+          "type": "object",
+          "properties": {
+            "platforms": {
+              "type": "object",
+              "description": "Data per platform",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "zones": {
+                    "type": "object",
+                    "description": "Counts per zone"
+                  },
+                  "total_loaded": {"type": "integer"},
+                  "total_unloaded": {"type": "integer"},
+                  "status": {"type": "string", "enum": ["live", "offline"]}
+                }
+              }
+            },
+            "total": {
+              "type": "object",
+              "properties": {
+                "loaded": {"type": "integer"},
+                "unloaded": {"type": "integer"},
+                "balance": {"type": "integer"}
+              }
+            },
+            "hourly": {
+              "type": "object",
+              "properties": {
+                "labels": {"type": "array", "items": {"type": "string"}},
+                "total": {
+                  "type": "object",
+                  "properties": {
+                    "loaded": {"type": "array", "items": {"type": "integer"}},
+                    "unloaded": {"type": "array", "items": {"type": "integer"}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

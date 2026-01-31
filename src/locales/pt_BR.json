@@ -1,0 +1,388 @@
+{
+  "login": {
+    "title": "Conecte-se",
+    "subtitle": "Entre com suas credenciais",
+    "placeholder": {
+      "username": "Usuário (Conecte-se)",
+      "password": "Senha"
+    },
+    "forgot": "Esqueceu usuário ou senha?",
+    "signin": "Entrar",
+    "language": "Idioma",
+    "lang_names": {
+      "pt": "Português",
+      "en": "Inglês"
+    }
+  },
+  "dashboard": {
+    "title": "Cargas e Descarga",
+    "timeframe": "Intervalo:",
+    "platform": "Plataforma:",
+    "all": "Todos",
+    "hourly": "Horário",
+    "daily": "Diário",
+    "weekly": "Semanal",
+    "monthly": "Mensal",
+    "platform_label_prefix": "Plataforma ",
+    "loaded": "Embarque",
+    "unloaded": "Desembarque",
+    "last_24": "Últimas 24h",
+    "last_7": "Últimos 7 dias",
+    "last_8_weeks": "Últimas 8 semanas",
+    "last_6_months": "Últimos 6 meses",
+    "balance": "Balanço:",
+    "cylinders": "Cilindros",
+    "filter_applied": "Filtro aplicado ao painel",
+    "all_platforms": "Todas as Plataformas",
+    "refreshData": "Atualizar Dados",
+    "refreshing": "Atualizando..."
+    ,
+    "custom_range": "Intervalo personalizado",
+    "custom_range_modal_title": "Intervalo de data e hora personalizado",
+    "start": "Início",
+    "end": "Fim",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "invalid_range": "Intervalo inválido: início deve ser antes do fim."
+  }
+
+  ,"platform": {
+    "configure_zones": "Configurar Zonas",
+    "click_to_open": "Clique para abrir o editor de zonas",
+    "open": "Abrir",
+    "signal_lost": "Sinal Perdido",
+    "loaded": "Carregado",
+    "unloaded": "Descarregado",
+    "no_zones": "Sem Zonas",
+    "create_zones": "Crie zonas para ver entradas/saídas",
+    "configure_button": "Configurar Zonas",
+    "zone": "Zona {{z}}",
+    "clear_all": "Limpar Todas",
+    "counting_zones_configuration": "Configuração de zonas de contagem",
+    "live_stream": "Transmissão ao vivo",
+    "connecting": "Conectando...",
+    "instructions_title": "Instruções",
+    "instructions_select_zone": "Selecione uma zona abaixo",
+    "instructions_click_points": "Clique em 2 pontos na imagem para desenhar a linha",
+    "instructions_direction_entry": "Direção: P1 → P2 (Direita) = ENTRADA",
+    "instructions_direction_exit": "Direção: P1 → P2 (Esquerda) = SAÍDA",
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "saving": "Salvando...",
+    "save_and_start": "Salvar e Iniciar Contagem",
+    "confirm_clear_zone": "Limpar zona {{z}}?"
+  }
+  ,"sidebar": {
+    "dashboard": "Painel",
+    "reports": "Relatórios",
+    "cameras": "Câmeras",
+    "users": "Usuários",
+    "audit": "Auditoria",
+    "settings": "Configurações",
+    "api_docs": "API Docs",
+    "light_mode": "Modo Claro",
+    "dark_mode": "Modo Escuro",
+    "need_help": "Precisa de ajuda?",
+    "whatsapp": "WhatsApp",
+    "logout": "Sair"
+  }
+,
+  "reports": {
+    "title": "Relatórios e Consultas",
+    "subtitle": "Acompanhe o histórico de movimentações e a saúde das integrações externas.",
+    "tabs": {
+      "operations": "Operações",
+      "integrations": "Logs de Integração"
+    },
+    "filters": {
+      "title": "Filtros de Movimentação",
+      "platform": "Plataforma",
+      "zone": "Zona",
+      "operationType": "Tipo de Operação",
+      "all": "Todos",
+      "embark": "Embarque",
+      "disembark": "Desembarque",
+      "startDate": "Data Inicial",
+      "endDate": "Data Final",
+      "includeTime": "Incluir hora",
+      "reset": "Resetar filtros"
+    },
+    "results": {
+      "count": "{{count}} registros encontrados"
+    },
+    "actions": {
+      "exporting": "Exportando...",
+      "exportPDF": "Exportar PDF",
+      "exportExcel": "Exportar Excel",
+      "exportCSV": "Exportar CSV"
+    },
+    "loading": {
+      "data": "Carregando dados...",
+      "logs": "Carregando logs..."
+    },
+    "empty": {
+      "noRecords": "Nenhum registro encontrado",
+      "tryFilters": "Tente ajustar os filtros acima."
+    },
+    "pagination": {
+      "showing": "Mostrando",
+      "to": "a",
+      "of": "de",
+      "results": "resultados",
+      "previous": "Anterior",
+      "next": "Próximo"
+    },
+    "integrations": {
+      "title": "Saúde das Integrações Externas",
+      "refresh": "Atualizar Agora",
+      "empty": "Nenhum log de integração encontrado"
+    },
+    "status": {
+      "success": "Sucesso",
+      "failure": "Falha"
+    }
+    ,
+    "table": {
+      "dateTime": "Data / Hora",
+      "platform": "Plataforma",
+      "operation": "Operação",
+      "zones": "Zonas",
+      "qtyCylinders": "Qtd. Cilindros",
+      "user": "Usuário"
+    }
+    ,
+    "pdf": {
+      "kpis_title": "KPIs - Indicadores Chave de Desempenho",
+      "summary_title": "Tabelas Resumo",
+      "platform": "Plataforma",
+      "total": "Total",
+      "percent": "% do Total",
+      "operation": "Operação",
+      "day_of_highest": "Dia de Maior Movimento",
+      "total_movements": "Total de Movimentos",
+      "top_platform": "Plataforma Principal",
+      "top_platform_qty": "Qtd. na Plataforma Principal",
+      "loaded_label": "Embarque",
+      "unloaded_label": "Desembarque",
+      "no_loaded_unloaded_legend": "Sem embarque/desembarque",
+      "generated_label": "Gerado:"
+    }
+  }
+  ,
+  "users": {
+    "title": "Usuários",
+    "subtitle": "Gerencie o acesso ao sistema",
+    "actions": {
+      "new": "Novo Usuário"
+    },
+    "search": {
+      "placeholder": "Pesquisar usuários..."
+    },
+    "modal": {
+      "edit": "Editar Usuário",
+      "new": "Novo Usuário",
+      "cancel": "Cancelar",
+      "save": "Salvar Alterações",
+      "create": "Criar Usuário"
+    },
+    "form": {
+      "username": "Usuário (Login)",
+      "email": "Email",
+      "password": "Senha",
+      "role": "Nível de Acesso",
+      "page_permissions": "Permissões de Tela",
+      "manage_viewers": "Permite gerenciar visualizadores",
+      "placeholder": {
+        "username": "Digite o nome de usuário",
+        "email": "Digite o email do usuário",
+        "password": "Entre com sua senha"
+      }
+    },
+    "roles": {
+      "viewer": "Visualizador",
+      "admin": "Administrador"
+    },
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "table": {
+      "user": "Usuário",
+      "login": "Usuário (Login)",
+      "role": "Função",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "messages": {
+      "onlyAdmins": "Apenas administradores podem gerenciar usuários.",
+      "saveError": "Não foi possível salvar o usuário. Verifique se você está logado como administrador.",
+      "cannotDeleteAdmin": "O usuário padrão admin/admin não pode ser excluído.",
+      "confirmDelete": "Tem certeza de que deseja excluir este usuário?",
+      "deleteError": "Não foi possível excluir o usuário. Verifique se você está logado como administrador.",
+      "statusError": "Não foi possível atualizar o status do usuário. Verifique se você está logado como administrador."
+    }
+    ,
+    "pages": {
+      "dashboard": "Painel",
+      "reports": "Relatórios",
+      "api_docs": "API Docs",
+      "audit": "Auditoria",
+      "cameras": "Câmeras",
+      "registrations": "Cadastros",
+      "users": "Usuários"
+    }
+  }
+  ,
+  "cameras": {
+    "title": "Câmeras",
+    "subtitle": "Gerencie as câmeras conectadas ao sistema",
+    "actions": {
+      "new": "Nova Câmera",
+      "test": "Testar",
+      "testing": "Testando...",
+      "testTitle": "Testar conexão da câmera",
+      "saveCamera": "Salvar Câmera"
+    },
+    "search": {
+      "placeholder": "Pesquisar câmeras..."
+    },
+    "modal": {
+      "edit": "Editar Câmera",
+      "new": "Nova Câmera",
+      "cancel": "Cancelar",
+      "save": "Salvar Alterações",
+      "saveCamera": "Salvar Câmera"
+    },
+    "form": {
+      "name": "Nome da Câmera",
+      "ip": "IP / URL",
+      "protocol": "Protocolo",
+      "platform": "Plataforma",
+      "location": "Localização"
+    },
+    "table": {
+      "camera": "Câmera",
+      "ip": "IP / URL",
+      "location": "Localização",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "messages": {
+      "fillIp": "Por favor, preencha o campo IP / URL antes de salvar a plataforma.",
+      "duplicateWarning": "Isto pode causar lentidão no sistema. Recomenda-se usar URLs diferentes para cada plataforma.",
+      "saveError": "Erro ao salvar a câmera: {{msg}}",
+      "confirmDelete": "Tem certeza de que deseja excluir esta câmera?",
+      "testSuccess": "Conexão com a plataforma {{id}} estabelecida com sucesso!",
+      "testFailed": "Conexão com a plataforma {{id}} falhou: {{err}}",
+      "testError": "Erro ao tentar conectar na plataforma {{id}}. Certifique-se de que o servidor backend esteja em execução."
+    }
+  },
+  "cadastros": {
+    "title": "Cadastros",
+    "tabs": {
+      "cameras": "Câmeras",
+      "users": "Usuários",
+      "settings": "Suporte",
+      "audit": "Auditoria"
+    },
+    "settings": {
+      "supportTitle": "Contatos de Suporte",
+      "supportDesc": "Configure os números mostrados no botão de suporte da barra lateral.",
+      "whatsapp": "WhatsApp (somente números)",
+      "whatsappHint": "Formato internacional: 55 + código de área + número",
+      "phone": "Telefone (exibir)",
+      "brandTitle": "Configurações da Marca",
+      "brandDesc": "Personalize o nome da plataforma, subtítulo e logotipo.",
+      "brandName": "Nome da Marca",
+      "subtitle": "Subtítulo",
+      "brandLogo": "Logotipo da Marca",
+      "noLogo": "Sem Logotipo",
+      "supportedFormats": "Formatos suportados: PNG, JPG, SVG.",
+      "remove": "Remover",
+      "saveChanges": "Salvar Alterações",
+      "saved": "Configurações salvas com sucesso!"
+    }
+  }
+  ,
+  "audit": {
+    "title": "Logs de Auditoria",
+    "subtitle": "Ver eventos e alterações do sistema",
+    "search": {
+      "placeholder": "Pesquisar logs..."
+    },
+    "filter": {
+      "allCategories": "Todas as Categorias"
+    },
+    "categories": {
+      "auth": "Autenticação",
+      "camera": "Câmera",
+      "user": "Usuário",
+      "settings": "Configurações",
+      "other": "Outro"
+    },
+    "table": {
+      "date": "Data",
+      "user": "Usuário",
+      "action": "Ação",
+      "category": "Categoria",
+      "details": "Detalhes"
+    },
+    "empty": {
+      "noLogs": "Nenhum log encontrado"
+    }
+  }
+  ,
+  "apiDocs": {
+    "title": "Documentação e Gerenciamento de API",
+    "subtitle": "Guia técnico para implementar e monitorar integrações externas.",
+    "openSwagger": "Abrir Swagger UI",
+    "rest": {
+      "title": "Consumo REST (Axios)",
+      "description": "O frontend usa interceptores para gerenciar tokens e autenticação global. O backend deve validar os headers em todas as rotas protegidas.",
+      "securityTitle": "Dica de Segurança: Gestão de Segredos",
+      "securityDesc": "Nunca codifique chaves reais no código. Use o arquivo .env (com base em .env.example) para gerenciar credenciais de produção com segurança."
+    },
+    "endpoints": {
+      "title": "Referência de Endpoints",
+      "analytics": "Analytics",
+      "streaming": "Streaming",
+      "configuration": "Configuração",
+      "todaySummaryDesc": "Retorna o resumo consolidado para todas as plataformas e o status individual.",
+      "videoFeedDesc": "Stream de vídeo (MJPEG) para a plataforma especificada.",
+      "setZonesDesc": "Define as coordenadas para contagem das zonas A, B, C e D."
+    },
+    "socket": {
+      "title": "Tempo Real (Socket.io)",
+      "description": "O servidor deve emitir atualizações globais para todos os clientes conectados usando o evento dashboard_update."
+    },
+    "deploy": {
+      "title": "Produção & Deploy",
+      "description": "O frontend usa URLs dinâmicas para facilitar a transição entre ambientes.",
+      "devNote": "Durante npm run dev, o sistema aponta para localhost:5000.",
+      "buildNote": "Após npm run build, o sistema detecta automaticamente o endereço do servidor via window.location.origin.",
+      "backendTipLabel": "Dica de backend:",
+      "backendTip": "Sirva a pasta dist como arquivos estáticos. O frontend localizará os endpoints no mesmo host."
+    },
+    "logs": {
+      "title": "Logs de Integração (ERP/WMS)",
+      "table": {
+        "status": "Status",
+        "system": "Sistema",
+        "dateTime": "Data / Hora",
+        "returnMessage": "Mensagem Retornada"
+      }
+    },
+    "status": {
+      "success": "Sucesso",
+      "unknown": "{label}"
+    },
+    "keys": {
+      "title": "Gerenciamento de Chaves",
+      "noKeys": "Nenhuma chave encontrada."
+    }
+  }
+}

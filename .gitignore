@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Python virtual environments
+venv/
+venv2/
+.env/
+.env
+.venv/
+.venv_api/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# pip and setuptools
+pip-wheel-metadata/
+*.egg-info/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# ML/AI model files
+*.pt
+*.pth
+*.h5
+*.onnx
+*.pb
+*.weights
+
+# Node.js
+node_modules/
+npm-debug.log*
+package-lock.json # (Opcional: ignore só se for time pequeno e não quiser versionar o lock)
+
+# Build output
+dist/
+build/
+*.tgz
+
+# React/Vite
+coverage/
+*.log
+.vite/
+.cache/
+
+# Logs
+*.log
+
+# OS / IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker/Podman
+*.pid
+docker-compose.override.yml
+
+# Nginx temp/configs (se houver segredos)
+nginx.conf
+*.crt
+*.key
