@@ -10,6 +10,7 @@ export interface Camera {
     status: 'online' | 'offline';
     protocol?: string;
     cameraType?: 'RTSP' | 'RTMP' | 'HTTP' | 'ONVIF' | 'WEBCAM';
+    hls_url?: string;
 }
 
 interface CameraState {
@@ -47,6 +48,7 @@ export const useCameraStore = create<CameraState>((set, get) => ({
                     id: raw || `${Date.now()}`,
                     name: p.name || `Camera ${pid || raw}`,
                     ip: p.url,
+                    hls_url: p.hls_url || p.hlsUrl || p.hls || '',
                     location: pid || raw,
                     platformId: pid || raw,
                     // Treat both backend statuses 'online' and 'live' as online for UI

@@ -10,3 +10,4 @@ SECRET_KEY = "dev-long-secret-key-please-change-in-production-2026-abcdefghijkl"
 # Frontend uses VITE_API_KEY fallback 'cylinder-api-secret-2026' when env not set.
 API_KEY = "cylinder-api-secret-2026"
 MODEL_PATH = "last.pt"
+GO2RTC_URL = "http://localhost:1984"

@@ -1,0 +1,5 @@
+# Coloque isto no arquivo mediamtx_conf/mediamtx.yml
+# Troque a URL RTSP conforme sua câmera e adicione mais streams conforme necessário
+paths:
+  platform1:
+    source: rtsp://admin:airlab@200.123.238.98:554/cam/realmonitor?channel=8&subtype=1

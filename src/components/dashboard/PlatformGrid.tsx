@@ -1,10 +1,11 @@
 import { useState, useEffect, memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Maximize2, VideoOff, X } from 'lucide-react';
+import { Maximize2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCameraStore } from '@/store/useCameraStore';
 import api from '@/lib/api';
 import { ZoneMappingModal } from './ZoneMappingModal';
+import VideoStream from '@/components/VideoStream';
 
 
 interface PlatformGridProps {
@@ -141,11 +142,13 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
                 id: idStr,
                 name: nameStr,
                 status: c.status ?? 'offline',
+                hlsUrl: c.hls_url || c.hlsUrl || `${api.defaults.baseURL}/video_feed/${idStr}`,
             };
         }) : Object.keys(platformStats).map((key: any) => ({
             id: String(key),
             name: String(key),
             status: platformStats?.[key]?.status === 'live' ? 'online' : 'offline',
+            hlsUrl: `${api.defaults.baseURL}/video_feed/${key}`,
         }));
 
         return base.map((p: any) => {
@@ -224,28 +227,18 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
                                     </button>
                                 </div>
 
-                                <div
-                                    className={cn(
-                                        'aspect-video bg-slate-100 dark:bg-slate-800 relative group cursor-pointer border-b border-slate-200 dark:border-slate-700'
-                                    )}
-                                >
-                                    <img
-                                        src={videoUrl}
-                                        alt={platform.name}
-                                        className="absolute inset-0 w-full h-full object-cover"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).style.display = 'none';
-                                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                        }}
-                                    />
-
-                                    <div className="absolute inset-0 flex items-center justify-center bg-slate-800 hidden">
-                                        <div className="flex flex-col items-center text-slate-500">
-                                            <VideoOff className="h-10 w-10 mb-2" />
-                                            <span className="text-xs">{t('platform.signal_lost')}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                                <div
+                                                    className={cn(
+                                                        'aspect-video bg-slate-100 dark:bg-slate-800 relative group cursor-pointer border-b border-slate-200 dark:border-slate-700'
+                                                    )}
+                                                >
+                                                    <VideoStream
+                                                        hlsUrl={platform.hlsUrl || videoUrl}
+                                                        title={platform.name}
+                                                        aspectRatio="16/9"
+                                                        className="absolute inset-0"
+                                                    />
+                                                </div>
 
                                 <div className="px-6 py-4 bg-card dark:bg-slate-800">
                                     <div className="flex justify-between items-center text-sm mb-1">
@@ -367,22 +360,12 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
 
 
                             <div className="w-full bg-slate-900 relative">
-                                <img
-                                    src={videoUrl}
-                                    alt={plat.name}
+                                <VideoStream
+                                    hlsUrl={plat.hlsUrl || videoUrl}
+                                    title={plat.name}
+                                    aspectRatio="16/9"
                                     className="w-full h-[50vh] object-contain bg-black"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = 'none';
-                                        (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                    }}
                                 />
-
-                                <div className="absolute inset-0 flex items-center justify-center bg-slate-800 hidden">
-                                    <div className="flex flex-col items-center text-slate-500">
-                                        <VideoOff className="h-10 w-10 mb-2" />
-                                        <span className="text-xs">{t('platform.signal_lost')}</span>
-                                    </div>
-                                </div>
                             </div>
 
                             <div className="p-4">
