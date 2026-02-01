@@ -51,10 +51,7 @@ export default function ApiDocs() {
         try {
             // Fetch integration logs from Flask backend
             // Using /get_report_data endpoint which returns count logs
-            const [, reportsRes] = await Promise.all([
-                api.get('/api/v1/platforms'),
-                api.get('/get_report_data')
-            ]);
+            const reportsRes = await api.get('/get_report_data');
 
             // Generate mock API keys for demonstration
             // In production, you would fetch these from a dedicated endpoint
@@ -152,7 +149,7 @@ export default function ApiDocs() {
                     <p className="text-muted-foreground">{t('apiDocs.subtitle')}</p>
                 </div>
                 <a
-                    href="/api-docs"
+                    href="http://127.0.0.1:5000/api-docs/"
                     target="_blank"
                     rel="noopener"
                     className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all shadow-sm text-sm font-semibold"

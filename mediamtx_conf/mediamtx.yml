@@ -1,5 +1,12 @@
-# Coloque isto no arquivo mediamtx_conf/mediamtx.yml
-# Troque a URL RTSP conforme sua câmera e adicione mais streams conforme necessário
+# Configuração do MediaMTX com API habilitada para gerenciamento dinâmico de câmeras
+# A API permite adicionar/remover streams sem editar este arquivo manualmente
+
+# Habilitar API HTTP para configuração dinâmica
+api: yes
+apiAddress: :9997
+
+# Paths serão configurados dinamicamente via API quando câmeras forem adicionadas
+# Exemplo de configuração manual (se necessário):
 paths:
   platform1:
     source: rtsp://admin:airlab@200.123.238.98:554/cam/realmonitor?channel=8&subtype=1

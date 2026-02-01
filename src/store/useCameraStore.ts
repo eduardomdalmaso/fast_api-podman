@@ -154,7 +154,8 @@ export const useCameraStore = create<CameraState>((set, get) => ({
     },
     deleteCamera: async (id: string): Promise<void> => {
         try {
-            await api.post('/api/v1/delete_camera', { id });
+            // Backend expects "platform" parameter
+            await api.post('/api/v1/delete_camera', { platform: id });
             set((state) => ({
                 cameras: state.cameras.filter((c) => c.id !== id),
             }));

@@ -187,13 +187,152 @@ const Reports = () => {
             }
             // Fallback to default zones A,B,C,D when none discovered
             if (!options || options.length <= 1) {
-                return ['all', 'A', 'B', 'C', 'D'];
+                return ['all', 'A', 'B', 'C'];
             }
             return options;
         } catch (e) {
             return ['all', 'A', 'B', 'C'];
         }
     }, [cameras, platformFilter]);
+
+        const escapeHtml = (value: any) => {
+                return String(value ?? '')
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+        };
+
+        const buildReportHtml = (data: ReportItem[], localePref: string) => {
+                const numberFmt = new Intl.NumberFormat(localePref);
+
+                const getQty = (item: any) => Number(item?.count ?? item?.quantity ?? 0) || 0;
+                const totalEvents = data.length;
+                const totalQty = data.reduce((acc, item) => acc + getQty(item), 0);
+                const loadedQty = data.reduce((acc, item) => (toInternalDirection(item) === 'loaded' ? acc + getQty(item) : acc), 0);
+                const unloadedQty = data.reduce((acc, item) => (toInternalDirection(item) === 'unloaded' ? acc + getQty(item) : acc), 0);
+                const loadedPct = totalQty > 0 ? ((loadedQty / totalQty) * 100).toFixed(1) : '0.0';
+
+                const dateLabel = (startDate || endDate)
+                        ? `${startDate || '-'} → ${endDate || '-'}`
+                        : (() => {
+                                const dates = data
+                                        .map((d: any) => new Date(d.timestamp || d.date || ''))
+                                        .filter((d: Date) => !isNaN(d.getTime()))
+                                        .sort((a: Date, b: Date) => a.getTime() - b.getTime());
+                                if (dates.length === 0) return '-';
+                                const start = dates[0].toISOString().slice(0, 10);
+                                const end = dates[dates.length - 1].toISOString().slice(0, 10);
+                                return `${start} → ${end}`;
+                        })();
+
+                const topBy = (key: 'platform' | 'zone') => {
+                        const map = new Map<string, number>();
+                        for (const item of data) {
+                                const k = String((item as any)[key] ?? '—');
+                                map.set(k, (map.get(k) || 0) + getQty(item));
+                        }
+                        let topKey = '—';
+                        let topVal = 0;
+                        for (const [k, v] of map.entries()) {
+                                if (v > topVal) {
+                                        topKey = k;
+                                        topVal = v;
+                                }
+                        }
+                        return { key: topKey, value: topVal };
+                };
+
+                const topPlatform = topBy('platform');
+                const topZone = topBy('zone');
+
+                const rows = data.map((item: any) => {
+                        const op = toInternalDirection(item);
+                        const opLabel = op === 'loaded'
+                                ? t('dashboard.loaded')
+                                : op === 'unloaded'
+                                        ? t('dashboard.unloaded')
+                                        : (item.operation || item.direction || '-');
+                        return `
+                                <tr>
+                                        <td>${escapeHtml(item.timestamp || item.date || '-')}</td>
+                                        <td>${escapeHtml(item.platform || '-')}</td>
+                                        <td>${escapeHtml(item.zone || '-')}</td>
+                                        <td>${escapeHtml(opLabel)}</td>
+                                        <td style="text-align:right;">${numberFmt.format(getQty(item))}</td>
+                                </tr>
+                        `;
+                }).join('');
+
+                const emptyRow = `<tr><td colspan="5" style="text-align:center; padding: 16px;">${t('reports.empty.noRecords')}</td></tr>`;
+
+                return `
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body { font-family: Arial, sans-serif; color: #0f172a; padding: 18px; }
+        h1 { margin: 0 0 4px; font-size: 22px; }
+        .sub { color: #64748b; font-size: 12px; margin-bottom: 16px; }
+        .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+        .kpi { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+        .kpi h3 { margin: 0 0 6px; font-size: 12px; color: #64748b; }
+        .kpi .val { font-size: 18px; font-weight: 700; }
+        .insights { margin: 10px 0 18px; padding: 10px; background: #f8fafc; border-radius: 8px; }
+        .insights h3 { margin: 0 0 8px; font-size: 13px; }
+        .insights ul { margin: 0; padding-left: 18px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { border: 1px solid #e2e8f0; padding: 6px 8px; }
+        th { background: #f1f5f9; text-align: left; }
+        .filters { margin-bottom: 12px; font-size: 12px; color: #475569; }
+    </style>
+</head>
+<body>
+    <h1>${escapeHtml(t('reports.title') || 'Relatório de KPIs')}</h1>
+    <div class="sub">${escapeHtml(t('reports.subtitle') || 'Resumo de operações, KPIs e insights')}</div>
+    <div class="filters">
+        <strong>Período:</strong> ${escapeHtml(dateLabel)} ·
+        <strong>Plataforma:</strong> ${escapeHtml(platformFilter)} ·
+        <strong>Zona:</strong> ${escapeHtml(zoneFilter)} ·
+        <strong>Operação:</strong> ${escapeHtml(typeFilter)}
+    </div>
+
+    <div class="kpis">
+        <div class="kpi"><h3>Total de eventos</h3><div class="val">${numberFmt.format(totalEvents)}</div></div>
+        <div class="kpi"><h3>Total de cilindros</h3><div class="val">${numberFmt.format(totalQty)}</div></div>
+        <div class="kpi"><h3>Carregados</h3><div class="val">${numberFmt.format(loadedQty)}</div></div>
+        <div class="kpi"><h3>Descarregados</h3><div class="val">${numberFmt.format(unloadedQty)}</div></div>
+    </div>
+
+    <div class="insights">
+        <h3>Insights</h3>
+        <ul>
+            <li>Plataforma com maior volume: <strong>${escapeHtml(topPlatform.key)}</strong> (${numberFmt.format(topPlatform.value)})</li>
+            <li>Zona com maior volume: <strong>${escapeHtml(topZone.key)}</strong> (${numberFmt.format(topZone.value)})</li>
+            <li>Percentual carregado: <strong>${loadedPct}%</strong></li>
+        </ul>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>${escapeHtml(t('reports.table.dateTime') || 'Data/Hora')}</th>
+                <th>${escapeHtml(t('reports.table.platform') || 'Plataforma')}</th>
+                <th>${escapeHtml(t('reports.table.zones') || 'Zona')}</th>
+                <th>${escapeHtml(t('reports.table.operation') || 'Operação')}</th>
+                <th>${escapeHtml(t('reports.table.qtyCylinders') || 'Quantidade')}</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${rows || emptyRow}
+        </tbody>
+    </table>
+</body>
+</html>
+                `;
+        };
 
     const handleExport = async (format: 'PDF' | 'Excel' | 'CSV') => {
         // Allow export even when no data is present; backend will generate headers/placeholders
@@ -202,13 +341,13 @@ const Reports = () => {
         try {
             // Map frontend filters to backend expected format
             const localePref = (i18n?.language || '').toString().toLowerCase().startsWith('pt') ? 'pt_BR' : 'en_US';
-            const exportData = {
+            const exportData: any = {
                 platform: platformFilter,
                 zone: zoneFilter,
                 direction: typeFilter, // typeFilter now holds 'all'|'loaded'|'unloaded'
                 startDate: startDate,
-                endDate: endDate
-            , lang: localePref
+                endDate: endDate,
+                lang: localePref
             };
 
             if (activeTab === 'operations') {
@@ -217,6 +356,7 @@ const Reports = () => {
                 if (format === 'PDF') {
                     endpoint = '/api/v1/reports/export/pdf';
                     filename += '.pdf';
+                    exportData.html = buildReportHtml(sortedData, localePref);
                 } else if (format === 'Excel') {
                     endpoint = '/api/v1/reports/export/excel';
                     filename += '.xlsx';
