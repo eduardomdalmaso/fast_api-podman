@@ -10,6 +10,10 @@ interface VideoStreamProps {
   className?: string;
   title?: string;
   aspectRatio?: "auto" | "16/9" | "4/3" | "1/1";
+  /** object-fit for the inner media element: 'cover' (default) or 'contain' */
+  objectFit?: 'cover' | 'contain' | 'fill';
+  /** called once when the stream successfully starts delivering frames/audio */
+  onConnected?: () => void;
 }
 
 function VideoStreamComponent({
@@ -18,6 +22,8 @@ function VideoStreamComponent({
   className = "",
   title,
   aspectRatio = "16/9",
+  objectFit = 'cover',
+  onConnected,
 }: VideoStreamProps) {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -25,10 +31,14 @@ function VideoStreamComponent({
   const hlsRef = useRef<Hls | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [useMjpegFallback, setUseMjpegFallback] = useState(false);
+  const connectedRef = useRef(false);
 
   useEffect(() => {
+    // Reset state for new source
     setIsLoading(true);
     setError(null);
+    connectedRef.current = false;
 
     // cleanup previous hls instance
     if (hlsRef.current) {
@@ -38,13 +48,25 @@ function VideoStreamComponent({
       hlsRef.current = null;
     }
 
-    // If hlsUrl is provided and hls.js is supported, use it
-    if (hlsUrl && videoRef.current) {
+    // Prefer MJPEG if available (contains overlaid zones + detections from server)
+    if (mjpegUrl && !hlsUrl) {
+      // MJPEG-only mode
+      const t = setTimeout(() => {
+        setIsLoading(false);
+        if (!connectedRef.current) {
+          connectedRef.current = true;
+          try { onConnected && onConnected(); } catch {}
+        }
+      }, 600);
+      return () => clearTimeout(t);
+    }
+
+    // If hlsUrl is provided WITHOUT mjpegUrl and hls.js is supported, use it
+    if (hlsUrl && videoRef.current && !useMjpegFallback && !mjpegUrl) {
       const video = videoRef.current;
 
       if (Hls.isSupported()) {
         const hls = new Hls({
-          // tune as needed
           maxBufferLength: 30,
           enableWorker: true,
         });
@@ -56,10 +78,19 @@ function VideoStreamComponent({
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           setIsLoading(false);
           video.play().catch(() => {});
+          if (!connectedRef.current) {
+            connectedRef.current = true;
+            try { onConnected && onConnected(); } catch {}
+          }
         });
-        hls.on(Hls.Events.ERROR, (_evt, data) => {
+        hls.on(Hls.Events.ERROR, (_evt: any, data: any) => {
           if (data.fatal) {
-            setError("Stream error");
+            if (mjpegUrl) {
+              setUseMjpegFallback(true);
+              setError(null);
+            } else {
+              setError("Stream error");
+            }
             setIsLoading(false);
             hls.destroy();
             hlsRef.current = null;
@@ -71,9 +102,18 @@ function VideoStreamComponent({
         video.onloadedmetadata = () => {
           setIsLoading(false);
           video.play().catch(() => {});
+          if (!connectedRef.current) {
+            connectedRef.current = true;
+            try { onConnected && onConnected(); } catch {}
+          }
         };
         video.onerror = () => {
-          setError("Failed to play HLS stream");
+          if (mjpegUrl) {
+            setUseMjpegFallback(true);
+            setError(null);
+          } else {
+            setError("Failed to play HLS stream");
+          }
           setIsLoading(false);
         };
       }
@@ -87,17 +127,22 @@ function VideoStreamComponent({
       };
     }
 
-    // If no hlsUrl, nothing else to setup; img will handle MJPEG if provided
+    // Fallback: neither mjpegUrl+hlsUrl nor valid hls setup
     setIsLoading(false);
     return () => {};
-  }, [hlsUrl, mjpegUrl]);
+  }, [hlsUrl, mjpegUrl, onConnected]);
 
   const handleImgLoad = () => {
     setIsLoading(false);
     setError(null);
+    if (!connectedRef.current) {
+      connectedRef.current = true;
+      try { onConnected && onConnected(); } catch {}
+    }
   };
+
   const handleImgError = () => {
-    setError("Failed to load stream (image)");
+    setError("Failed to load stream");
     setIsLoading(false);
   };
 
@@ -130,26 +175,35 @@ function VideoStreamComponent({
         </div>
       )}
 
-      {/* HLS video player (preferred) */}
-      {hlsUrl ? (
+      {/* MJPEG (preferred - has overlaid zones + detections) or HLS fallback */}
+      {mjpegUrl && !useMjpegFallback ? (
+        // MJPEG - stream via img tag (contains server-side overlaid zones + detections)
+        <img
+          ref={imgRef}
+          src={mjpegUrl}
+          alt="Video stream"
+          onLoad={handleImgLoad}
+          onError={handleImgError}
+          className={`w-full h-full object-${objectFit} bg-black`}
+        />
+      ) : hlsUrl && !useMjpegFallback ? (
         <video
           ref={videoRef}
           controls
           muted
           autoPlay
           playsInline
-          className="w-full h-full object-cover bg-black"
+          className={`w-full h-full object-${objectFit} bg-black`}
         />
       ) : (
-        // MJPEG fallback - legacy: image stream served as multipart/x-mixed-replace
+        // Fallback - stream via img tag with cache-busting
         <img
           ref={imgRef}
           src={mjpegUrl}
-          alt={title || "video stream"}
-          className="w-full h-full object-cover"
+          alt="Video stream"
           onLoad={handleImgLoad}
           onError={handleImgError}
-          crossOrigin="use-credentials"
+          className={`w-full h-full object-${objectFit} bg-black`}
         />
       )}
 

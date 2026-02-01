@@ -10,6 +10,23 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Disable warnings for large chunks
+    chunkSizeWarningLimit: 2000,
+    // Simple rollup config - let Vite handle the splitting automatically
+    rollupOptions: {
+      output: {
+        // Optimize file naming
+        entryFileNames: 'js/[name]-[hash].js',
+        chunkFileNames: 'js/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
+    },
+    // Target modern browsers
+    target: 'esnext',
+    // Use esbuild (faster and simpler)
+    minify: 'esbuild',
+  },
   server: {
     // Proxy API requests to the Flask backend during development
     proxy: {
@@ -18,13 +35,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      // Some endpoints are not under /api (if any), add them explicitly here
       '/get_report_data': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       },
-      // Forward zone management and direct media endpoints to Flask during dev
       '/get_zones': {
         target: 'http://localhost:5000',
         changeOrigin: true,

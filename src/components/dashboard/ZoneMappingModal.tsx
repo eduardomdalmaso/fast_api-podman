@@ -5,6 +5,8 @@ import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hasPagePermission } from '@/lib/permissions';
+import VideoStream from '@/components/VideoStream';
+import { getVideoStreamUrl, getSnapshotZonesOnly } from '@/lib/server-api';
 
 interface Point {
     x: number;
@@ -65,14 +67,13 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
     const canEditZones = hasPagePermission(user, 'cameras');
     
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const videoStreamUrl = useRef<string | null>(null);
     const [zones, setZones] = useState<Zones>({});
     const [currentZone, setCurrentZone] = useState<string | null>(null);
     const [tempPoints, setTempPoints] = useState<Point[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [isStreamConnected, setIsStreamConnected] = useState(false);
+    const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null);
     const animationFrameRef = useRef<number | null>(null);
-    const hiddenImgRef = useRef<HTMLImageElement | null>(null);
     
     // Keep refs in sync with state for use in draw loop
     const currentZoneRef = useRef<string | null>(null);
@@ -93,49 +94,49 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
     useEffect(() => {
         if (isOpen) {
             loadInitialData();
-            startLiveStream();
+            startOverlayLoop();
+            // quick connectivity check
+            (async () => {
+                try {
+                    console.log(`[ZoneModal] Fetching snapshot for ${platform} using getSnapshotZonesOnly (no detections)`);
+                    const blob = await getSnapshotZonesOnly(platform);
+                    const url = URL.createObjectURL(blob);
+                    setSnapshotUrl(url);
+                    setIsStreamConnected(true);
+                    console.log(`[ZoneModal] Successfully loaded snapshot from zones-only endpoint`);
+                } catch (e) {
+                    console.error(`[ZoneModal] Error fetching snapshot:`, e);
+                    setSnapshotUrl(null);
+                    setIsStreamConnected(false);
+                }
+            })();
         } else {
-            stopLiveStream();
+            stopOverlayLoop();
         }
-        return () => stopLiveStream();
+        return () => stopOverlayLoop();
     }, [isOpen, platform]);
 
-    const startLiveStream = () => {
-        stopLiveStream();
-        const baseUrl = import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin;
-        const url = `${baseUrl}/video_feed/${platform}`;
-        videoStreamUrl.current = url;
-        
-        // Start rendering immediately
-        setupStreamCanvas();
-    };
+    // revoke snapshot object URL when modal closes or platform changes
+    useEffect(() => {
+        return () => {
+            if (snapshotUrl) {
+                try {
+                    URL.revokeObjectURL(snapshotUrl);
+                } catch (e) {}
+            }
+            setSnapshotUrl(null);
+        };
+    }, [snapshotUrl, isOpen]);
 
-    const setupStreamCanvas = () => {
-        if (!canvasRef.current || !videoStreamUrl.current) return;
+    const startOverlayLoop = () => {
+        stopOverlayLoop();
 
+        if (!canvasRef.current) return;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Create hidden image element that receives continuous MJPEG stream
-        if (hiddenImgRef.current) {
-            hiddenImgRef.current.src = '';
-            if (document.body.contains(hiddenImgRef.current)) {
-                document.body.removeChild(hiddenImgRef.current);
-            }
-        }
-        
-        const hiddenImg = new Image();
-        hiddenImg.crossOrigin = "use-credentials";
-        hiddenImg.style.display = 'none';
-        document.body.appendChild(hiddenImg);
-        hiddenImgRef.current = hiddenImg;
-        
-        console.log('[ZoneModal] Setting up stream with URL:', videoStreamUrl.current);
-        
-        let frameCount = 0;
         let isDrawing = false;
-        let successfulFrames = 0;
 
         const draw = () => {
             if (isDrawing) {
@@ -145,34 +146,10 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
 
             try {
                 isDrawing = true;
-                frameCount++;
-                
-                // Draw every frame
-                ctx.fillStyle = '#f3f4f6';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw hidden image if it's loaded
-                if (hiddenImg.complete && hiddenImg.naturalWidth > 0) {
-                    try {
-                        ctx.drawImage(hiddenImg, 0, 0, canvas.width, canvas.height);
-                        successfulFrames++;
-                        if (successfulFrames === 1) {
-                            console.log('[ZoneModal] First frame rendered successfully');
-                        }
-                        if (!isStreamConnected) {
-                            setIsStreamConnected(true);
-                        }
-                    } catch (error) {
-                        console.debug('[ZoneModal] Image draw attempt error:', error);
-                    }
-                }
-                
-                // Debug: Log render state every 30 frames
-                if (frameCount % 30 === 0) {
-                    console.log(`[ZoneModal] Frame ${frameCount}: currentZone=${currentZoneRef.current}, tempPoints=${tempPointsRef.current.length} points`);
-                }
-                
-                // Render zones overlay with current state values from refs
+                // Clear canvas (keep transparent so underlying VideoStream shows)
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Render zones overlay using current refs
                 renderZones(ctx, currentZoneRef.current, tempPointsRef.current);
             } catch (error) {
                 console.error('[ZoneModal] Draw error:', error);
@@ -182,37 +159,14 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
             }
         };
 
-        hiddenImg.onload = () => {
-            console.log('[ZoneModal] Image onload triggered');
-            setIsStreamConnected(true);
-        };
-
-        hiddenImg.onerror = (error) => {
-            console.warn('[ZoneModal] Stream failed to load:', error);
-            setIsStreamConnected(false);
-        };
-
-        // Set source to enable continuous MJPEG stream
-        hiddenImg.src = videoStreamUrl.current;
-        console.log('[ZoneModal] Image src set, waiting for frames...');
-
-        // Start animation loop
         animationFrameRef.current = requestAnimationFrame(draw);
     };
 
-    const stopLiveStream = () => {
+    const stopOverlayLoop = () => {
         if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
             animationFrameRef.current = null;
         }
-        if (hiddenImgRef.current) {
-            hiddenImgRef.current.src = '';
-            if (document.body.contains(hiddenImgRef.current)) {
-                document.body.removeChild(hiddenImgRef.current);
-            }
-            hiddenImgRef.current = null;
-        }
-        videoStreamUrl.current = null;
     };
 
     const loadInitialData = async () => {
@@ -267,13 +221,7 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
         }
     };
 
-    useEffect(() => {
-        if (!videoStreamUrl.current || !canvasRef.current) return;
-
-        return () => {
-            // Cleanup is handled in stopLiveStream
-        };
-    }, []);
+    
 
     const renderZones = (ctx: CanvasRenderingContext2D, currentZoneParam: string | null, tempPointsParam: Point[]) => {
         // Draw existing zones (use ref to ensure latest values inside animation loop)
@@ -407,8 +355,9 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
             setZones(reloaded);
             // Notify other parts of the app that zones for this platform were updated
             try {
-                console.debug('[ZoneModal] dispatching zones:updated', { platform, zones: reloaded });
-                window.dispatchEvent(new CustomEvent('zones:updated', { detail: { platform, zones: reloaded } }));
+                // Dispatch zones in the server format (p1/p2) so other parts
+                // of the app (dashboard) can consume them directly.
+                window.dispatchEvent(new CustomEvent('zones:updated', { detail: { platform, zones: zonesRes.data || {} } }));
             } catch (e) {
                 console.warn('Failed to dispatch zones:updated event', e);
             }
@@ -456,7 +405,7 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
                 setZones(reloaded);
                 // notify others that zones were cleared for this platform
                 try {
-                    window.dispatchEvent(new CustomEvent('zones:updated', { detail: { platform, zones: reloaded } }));
+                    window.dispatchEvent(new CustomEvent('zones:updated', { detail: { platform, zones: zonesRes.data || {} } }));
                 } catch (e) {
                     console.warn('Failed to dispatch zones:updated (clearAll)', e);
                 }
@@ -514,15 +463,27 @@ export function ZoneMappingModal({ isOpen, onClose, platform, platformName }: Zo
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         <div className="lg:col-span-3">
                             <div className="relative aspect-[1020/600] bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden border-4 border-slate-200 dark:border-slate-700 shadow-inner">
+                                {snapshotUrl ? (
+                                    <img src={snapshotUrl} alt="snapshot" className="absolute inset-0 w-full h-full object-contain" />
+                                ) : (
+                                    <VideoStream
+                                        mjpegUrl={getVideoStreamUrl(platform)}
+                                        objectFit="contain"
+                                        className="absolute inset-0 w-full h-full"
+                                        onConnected={() => setIsStreamConnected(true)}
+                                        aspectRatio="auto"
+                                    />
+                                )}
                                 <canvas
                                     ref={canvasRef}
                                     width={1020}
                                     height={600}
                                     onClick={handleCanvasClick}
                                     className={cn(
-                                        "w-full h-full cursor-crosshair",
+                                        "absolute inset-0 w-full h-full cursor-crosshair",
                                         !currentZone && "cursor-default"
                                     )}
+                                    style={{ pointerEvents: 'auto' }}
                                 />
                             </div>
                             {/* Fixed zones: only A, B, C allowed (no explanatory text) */}

@@ -2,15 +2,18 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { Suspense, lazy, useEffect, ReactNode } from 'react';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { Layout } from '@/components/Layout';
-import Dashboard from '@/pages/Dashboard';
 import Login from '@/pages/Login';
 import { useAuthStore } from '@/store/useAuthStore';
 import api from '@/lib/api';
 
-// Lazy load pages that aren't critical
+// Lazy load ALL pages for optimal code splitting
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Cadastros = lazy(() => import('@/pages/Cadastros'));
 const Reports = lazy(() => import('@/pages/Reports'));
 const ApiDocs = lazy(() => import('@/pages/ApiDocs'));
+const AuditLogs = lazy(() => import('@/pages/AuditLogs'));
+const Users = lazy(() => import('@/pages/Users'));
+const Cameras = lazy(() => import('@/pages/Cameras'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -97,12 +100,21 @@ function App() {
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
                     <Route element={<Layout />}>
-                        <Route path="/" element={<Dashboard />} />
+                        <Route 
+                            path="/" 
+                            element={
+                                <Suspense fallback={<PageLoader />}>
+                                    <Dashboard />
+                                </Suspense>
+                            } 
+                        />
                         <Route
                             path="/cadastros"
                             element={
                                 <ProtectedPageRoute pageKey="registrations">
-                                    <Suspense fallback={<PageLoader />}><Cadastros /></Suspense>
+                                    <Suspense fallback={<PageLoader />}>
+                                        <Cadastros />
+                                    </Suspense>
                                 </ProtectedPageRoute>
                             }
                         />
@@ -110,7 +122,9 @@ function App() {
                             path="/reports" 
                             element={
                                 <ProtectedPageRoute pageKey="reports">
-                                    <Suspense fallback={<PageLoader />}><Reports /></Suspense>
+                                    <Suspense fallback={<PageLoader />}>
+                                        <Reports />
+                                    </Suspense>
                                 </ProtectedPageRoute>
                             } 
                         />
@@ -118,7 +132,39 @@ function App() {
                             path="/api-docs"
                             element={
                                 <ProtectedPageRoute pageKey="api_docs">
-                                    <Suspense fallback={<PageLoader />}><ApiDocs /></Suspense>
+                                    <Suspense fallback={<PageLoader />}>
+                                        <ApiDocs />
+                                    </Suspense>
+                                </ProtectedPageRoute>
+                            }
+                        />
+                        <Route
+                            path="/audit"
+                            element={
+                                <ProtectedPageRoute pageKey="audit">
+                                    <Suspense fallback={<PageLoader />}>
+                                        <AuditLogs />
+                                    </Suspense>
+                                </ProtectedPageRoute>
+                            }
+                        />
+                        <Route
+                            path="/users"
+                            element={
+                                <ProtectedPageRoute pageKey="users">
+                                    <Suspense fallback={<PageLoader />}>
+                                        <Users />
+                                    </Suspense>
+                                </ProtectedPageRoute>
+                            }
+                        />
+                        <Route
+                            path="/cameras"
+                            element={
+                                <ProtectedPageRoute pageKey="cameras">
+                                    <Suspense fallback={<PageLoader />}>
+                                        <Cameras />
+                                    </Suspense>
                                 </ProtectedPageRoute>
                             }
                         />

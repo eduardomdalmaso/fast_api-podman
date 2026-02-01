@@ -309,6 +309,17 @@ export async function getSnapshot(platform: string): Promise<Blob> {
   }
 }
 
+export async function getSnapshotZonesOnly(platform: string): Promise<Blob> {
+  try {
+    const response = await api.get(`/snapshot/${platform}/zones-only`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error('Failed to fetch snapshot');
+  }
+}
+
 // ============================================================================
 // USER MANAGEMENT (ADMIN ONLY)
 // ============================================================================

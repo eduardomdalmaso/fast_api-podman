@@ -138,17 +138,21 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
             // Ensure stable id/name (avoid using Date.now or unstable fallbacks)
             const idStr = String(c.id ?? c.platform ?? `platform${c.platformId ?? '0'}`);
             const nameStr = String(c.name ?? c.id ?? idStr);
+            // Only use HLS if camera has explicit hls_url with .m3u8
+            const hasRealHls = (c.hls_url || c.hlsUrl || '').includes('.m3u8');
             return {
                 id: idStr,
                 name: nameStr,
                 status: c.status ?? 'offline',
-                hlsUrl: c.hls_url || c.hlsUrl || `${api.defaults.baseURL}/video_feed/${idStr}`,
+                hlsUrl: hasRealHls ? (c.hls_url || c.hlsUrl) : undefined,
+                mjpegUrl: `${api.defaults.baseURL}/video_feed/${idStr}`,
             };
         }) : Object.keys(platformStats).map((key: any) => ({
             id: String(key),
             name: String(key),
             status: platformStats?.[key]?.status === 'live' ? 'online' : 'offline',
-            hlsUrl: `${api.defaults.baseURL}/video_feed/${key}`,
+            hlsUrl: undefined, // No cameras = no HLS, use MJPEG
+            mjpegUrl: `${api.defaults.baseURL}/video_feed/${key}`,
         }));
 
         return base.map((p: any) => {
@@ -188,7 +192,6 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
             <div className="w-full min-w-full grid grid-flow-col auto-cols-[minmax(320px,320px)] gap-4 overflow-x-auto md:grid-flow-row md:auto-cols-auto md:grid-cols-2 lg:grid-cols-4">
                 {filteredPlatforms.map((platform: any) => {
                     const isOnline = platform.status === 'online';
-                    const videoUrl = `${api.defaults.baseURL}/video_feed/${platform.id}`;
                     const isExpanded = expandedPlatform === String(platform.id);
                     return (
                         <div key={platform.id} className={cn('min-w-[320px] flex-shrink-0')}>
@@ -227,18 +230,19 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
                                     </button>
                                 </div>
 
-                                                <div
-                                                    className={cn(
-                                                        'aspect-video bg-slate-100 dark:bg-slate-800 relative group cursor-pointer border-b border-slate-200 dark:border-slate-700'
-                                                    )}
-                                                >
-                                                    <VideoStream
-                                                        hlsUrl={platform.hlsUrl || videoUrl}
-                                                        title={platform.name}
-                                                        aspectRatio="16/9"
-                                                        className="absolute inset-0"
-                                                    />
-                                                </div>
+                                                                        <div
+                                                                            className={cn(
+                                                                                'aspect-video bg-slate-100 dark:bg-slate-800 relative group cursor-pointer border-b border-slate-200 dark:border-slate-700'
+                                                                            )}
+                                                                        >
+                                                                            <VideoStream
+                                                                                hlsUrl={platform.hlsUrl}
+                                                                                mjpegUrl={platform.mjpegUrl}
+                                                                                title={platform.name}
+                                                                                aspectRatio="16/9"
+                                                                                className="absolute inset-0"
+                                                                            />
+                                                                        </div>
 
                                 <div className="px-6 py-4 bg-card dark:bg-slate-800">
                                     <div className="flex justify-between items-center text-sm mb-1">
@@ -334,7 +338,6 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
             {expandedPlatform && (() => {
                 const plat = platforms.find((p: any) => String(p.id) === String(expandedPlatform));
                 if (!plat) return null;
-                const videoUrl = `${api.defaults.baseURL}/video_feed/${plat.id}`;
 
                 return (
                     <div
@@ -361,7 +364,8 @@ function PlatformGridComponent({ platformFilter, realtimeData }: PlatformGridPro
 
                             <div className="w-full bg-slate-900 relative">
                                 <VideoStream
-                                    hlsUrl={plat.hlsUrl || videoUrl}
+                                    hlsUrl={plat.hlsUrl}
+                                    mjpegUrl={plat.mjpegUrl}
                                     title={plat.name}
                                     aspectRatio="16/9"
                                     className="w-full h-[50vh] object-contain bg-black"
