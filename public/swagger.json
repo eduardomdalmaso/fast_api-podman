@@ -514,6 +514,30 @@
         }
       }
     },
+    "/snapshot/{platform}/zones-only": {
+      "get": {
+        "tags": ["Video"],
+        "summary": "Single snapshot with zones only (no detections)",
+        "description": "Returns a JPEG with configured zones overlaid but without algorithm bounding boxes — used by the zone editor.",
+        "security": [{"SessionAuth": []}],
+        "parameters": [
+          {
+            "name": "platform",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string"}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JPEG image (zones only)",
+            "content": {
+              "image/jpeg": {}
+            }
+          }
+        }
+      }
+    },
     "/api/v1/platforms": {
       "get": {
         "tags": ["Platforms"],

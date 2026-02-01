@@ -190,6 +190,12 @@ curl -X POST http://localhost:5000/api/auth/login \
   ```
   Returns a single JPEG image.
 
+  #### Snapshot (zones-only)
+  ```http
+  GET /snapshot/platform1/zones-only
+  ```
+  Returns a single JPEG that includes only the configured zones (no algorithm bounding boxes). Intended for the zone-drawing UI.
+
   ---
 
   ### Users (Admin only)

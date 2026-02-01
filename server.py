@@ -731,6 +731,149 @@ async def api_update_camera(data: dict = Body(...), db: Session = Depends(get_db
     return {'success': True}
 
 
+# ============== USER MANAGEMENT ENDPOINTS ==============
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    """Extract user from JWT token in cookie."""
+    token = request.cookies.get('access_token')
+    if not token:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+    payload = verify_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail='Invalid token')
+    username = payload.get('username')
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=401, detail='User not found')
+    return user
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    """Dependency to ensure user has admin role."""
+    if user.role != 'admin':
+        raise HTTPException(status_code=403, detail='Admin access required')
+    return user
+
+
+class UserCreateRequest(BaseModel):
+    username: str
+    password: str
+    role: str = 'viewer'
+    page_permissions: Optional[List[str]] = None
+
+
+class UserUpdateRequest(BaseModel):
+    username: Optional[str] = None
+    password: Optional[str] = None
+    role: Optional[str] = None
+    page_permissions: Optional[List[str]] = None
+
+
+@app.get('/api/v1/users')
+async def get_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """List all users (admin only)."""
+    users = db.query(User).all()
+    return {
+        'users': [
+            {
+                'id': u.id,
+                'username': u.username,
+                'role': u.role,
+                'page_permissions': json.loads(u.page_permissions) if u.page_permissions else [],
+                'active': getattr(u, 'active', True),
+            }
+            for u in users
+        ]
+    }
+
+
+@app.post('/api/v1/add_user')
+async def add_user(
+    data: UserCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Create a new user (admin only)."""
+    # Check if username already exists
+    existing = db.query(User).filter(User.username == data.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail='Username already exists')
+    
+    # Hash password
+    password_hash = hash_password(data.password)
+    
+    # Default permissions
+    permissions = data.page_permissions or ['dashboard']
+    
+    new_user = User(
+        username=data.username,
+        password_hash=password_hash,
+        role=data.role,
+        page_permissions=json.dumps(permissions)
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {
+        'success': True,
+        'user': {
+            'id': new_user.id,
+            'username': new_user.username,
+            'role': new_user.role,
+            'page_permissions': permissions
+        }
+    }
+
+
+@app.post('/api/v1/update_user')
+async def update_user(
+    user_id: int = Body(...),
+    data: UserUpdateRequest = Body(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Update an existing user (admin only)."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    
+    if data.username is not None:
+        user.username = data.username
+    if data.password is not None:
+        user.password_hash = hash_password(data.password)
+    if data.role is not None:
+        user.role = data.role
+    if data.page_permissions is not None:
+        user.page_permissions = json.dumps(data.page_permissions)
+    
+    db.commit()
+    return {'success': True}
+
+
+@app.post('/api/v1/delete_user')
+async def delete_user(
+    user_id: int = Body(..., embed=True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Delete a user (admin only)."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    
+    # Prevent deleting yourself
+    if user.id == current_user.id:
+        raise HTTPException(status_code=400, detail='Cannot delete your own account')
+    
+    db.delete(user)
+    db.commit()
+    return {'success': True}
+
+
+# ============== STATIC FILE SERVING ==============
 @app.get("/")
 async def serve_index():
     return FileResponse("dist/index.html")
